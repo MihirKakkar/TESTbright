@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testosterone Calculator</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #ff6464;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+  }
+  .container {
+    color: white;
+  }
+  .title {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+  .subtitle {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  .attach-button {
+    font-size: 20px;
+    padding: 10px 20px;
+    background-color: white;
+    color: #ff6464;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    outline: none;
+  }
+  .attach-button:hover {
+    background-color: #ffa1a1;
+  }
+  .file-input {
+    display: none;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">Testosterone Calculator</div>
+    <div class="subtitle">Attach your CLIA video below</div>
+    <input type="file" id="videoInput" class="file-input" accept="video/*">
+    <label for="videoInput" class="attach-button">ATTACH VIDEO</label>
+  </div>
+
+    <video id="video" style="display: none;" controls></video>
+    <canvas id="canvas" style="display: none;"></canvas>
+
+    <script src="opencv.js" type="text/javascript"></script>
+    <script src="analysis.js"></script>
+
+</body>
+</html>
