@@ -1,47 +1,64 @@
-console.log("tester")
-  // This function runs after OpenCV.js has fully loaded
-  cv['onRuntimeInitialized'] = () => {
-    console.log('OpenCV.js is ready.');
+console.log("tester");
+// This function runs after OpenCV.js has fully loaded
+cv['onRuntimeInitialized'] = () => {
+  console.log('OpenCV.js is ready.');
 
-    document.getElementById('videoInput').addEventListener('change', function() {
-        const file = this.files[0];
-        const url = URL.createObjectURL(file);
-        const video = document.getElementById('video');
-        video.src = url;
-        video.onloadedmetadata = () => {
-            processVideo(video);
-        };
-    });
+  document.getElementById('videoInput').addEventListener('change', function() {
+      const file = this.files[0];
+      const url = URL.createObjectURL(file);
+      const video = document.getElementById('video');
+      video.src = url;
+      video.onloadedmetadata = () => {
+          processVideo(video);
+      };
+  });
 };
 
-function calculateLuminescence(frame) {
-    let grayFrame = new cv.Mat();
-    cv.cvtColor(frame, grayFrame, cv.COLOR_RGBA2GRAY, 0);
-    let meanValue = cv.mean(grayFrame);
-    grayFrame.delete();
-    return meanValue[0];
+function averageBlueIntensity(frame) {
+    // Convert the frame to RGBA (just in case it's not already in this format)
+    let rgbaFrame = new cv.Mat();
+    if (frame.type() === cv.CV_8UC1) {
+        cv.cvtColor(frame, rgbaFrame, cv.COLOR_GRAY2RGBA);
+    } else if (frame.type() === cv.CV_8UC3) {
+        cv.cvtColor(frame, rgbaFrame, cv.COLOR_RGB2RGBA);
+    } else {
+        rgbaFrame = frame.clone();
+    }
+
+    let totalBlueIntensity = 0;
+    const totalPixels = rgbaFrame.cols * rgbaFrame.rows;
+
+    // Access the image data
+    for (let i = 0; i < rgbaFrame.data.length; i += 4) {
+        // Extract the blue channel
+        totalBlueIntensity += rgbaFrame.data[i + 2]; // RGBA data, so +2 is the blue channel
+    }
+
+    const averageBlue = totalBlueIntensity / totalPixels;
+    rgbaFrame.delete();
+    return averageBlue;
 }
 
 function processVideo(video) {
 
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let peakLuminescence = 0;
+    let peakBlueIntensity = 0;
 
     video.play();
 
     function processFrame() {
         if (video.paused || video.ended) {
-            console.log("Peak Luminescence: ", peakLuminescence);
+            console.log("Peak Blue Intensity: ", peakBlueIntensity);
             return;
         }
 
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
         let frame = cv.imread(canvas);
-        let luminescence = calculateLuminescence(frame);
+        let blueIntensity = averageBlueIntensity(frame);
 
-        if (luminescence > peakLuminescence) {
-            peakLuminescence = luminescence;
+        if (blueIntensity > peakBlueIntensity) {
+            peakBlueIntensity = blueIntensity;
         }
 
         frame.delete();
@@ -49,7 +66,7 @@ function processVideo(video) {
     }
     requestAnimationFrame(processFrame);
 
-    console.log(peakLuminescence)
+    console.log(peakBlueIntensity)
     console.log("finish")
 
     setTimeout(() => {
@@ -57,6 +74,6 @@ function processVideo(video) {
     }, 5000)
 
     setTimeout(() => {
-      document.body.innerHTML = "<h1> Testosterone concentration: " + Number((Math.exp((peakLuminescence - 23.6)/(-8.46)))).toPrecision(3) + " ng/mL</h1>"
+      document.body.innerHTML = "<h1> Testosterone concentration: " + Number((Math.exp((peakBlueIntensity - 51.7)/(-6.21)))).toPrecision(3) + " ng/mL</h1>"
     }, 10000)
 }
