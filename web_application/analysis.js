@@ -74,6 +74,6 @@ function processVideo(video) {
     }, 5000)
 
     setTimeout(() => {
-      document.body.innerHTML = "<h1> Testosterone concentration: " + Number((Math.exp((peakBlueIntensity - 51.7)/(-6.21)))).toPrecision(3) + " ng/mL</h1>"
+      document.body.innerHTML = "<h1> Testosterone concentration: " + Number(Math.trunc((Math.exp((peakBlueIntensity - 51.7)/(-6.21)))).toPrecision(2)) + "± " + Number((Math.exp((peakBlueIntensity - 51.7)/(-6.21))) * 0.18).toPrecision(2) + " ng/mL</h1>"
     }, 10000)
 }
